@@ -449,7 +449,7 @@
 <script>
   let currentType = 'keluar';
   let recentItems = [];
-  let lastRequestTimestamp = 0;
+  let lastRequestTimestamp = Date.now() - REQUEST_INTERVAL_MS; // Allow immediate first submit
   const REQUEST_INTERVAL_MS = 10000; // 1 request per 10 detik
 
   function canSendRequest() {
