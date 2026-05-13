@@ -14,7 +14,7 @@
     return true;
   }
 
-  // Init
+  // Init tes
   function getTodayInGMT7() {
     const now = new Date();
     const utc = now.getTime() + now.getTimezoneOffset() * 60000;
