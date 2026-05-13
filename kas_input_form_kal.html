@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kas Harian — Input</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0d0f12;
+    --surface: #161a20;
+    --surface2: #1e242d;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.14);
+    --text: #e8eaed;
+    --muted: #7a8494;
+    --accent-green: #22c55e;
+    --accent-green-dim: rgba(34,197,94,0.12);
+    --accent-red: #f87171;
+    --accent-red-dim: rgba(248,113,113,0.12);
+    --accent-blue: #60a5fa;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .page {
+    width: 100%;
+    max-width: 520px;
+  }
+
+  /* Header */
+  .app-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 2rem;
+    padding-top: 0.5rem;
+  }
+  .app-logo {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, #22c55e22, #22c55e44);
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .app-title { font-size: 20px; font-weight: 600; letter-spacing: -0.3px; }
+  .app-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--border-hover); }
+
+  /* URL bar */
+  .url-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .url-icon { font-size: 16px; opacity: 0.4; flex-shrink: 0; }
+  .url-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11.5px;
+    min-width: 0;
+  }
+  .url-input::placeholder { color: #3d4755; }
+  .url-input:focus { color: var(--text); }
+  .btn-sm {
+    padding: 5px 12px;
+    border: 1px solid var(--border-hover);
+    background: transparent;
+    color: var(--muted);
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-sm:hover { background: var(--surface2); color: var(--text); }
+
+  /* Section label */
+  .section-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  /* Grid */
+  .grid-top { display: grid; grid-template-columns: 72px 1fr; gap: 10px; margin-bottom: 10px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+
+  /* Field */
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="number"],
+  select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: rgba(34,197,94,0.4);
+    box-shadow: 0 0 0 3px rgba(34,197,94,0.08);
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
+  input[type="number"] { font-family: 'DM Mono', monospace; }
+  select { cursor: pointer; }
+  select option { background: #1e242d; }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+  /* Nominal prefix */
+  .nominal-wrap { position: relative; }
+  .nominal-prefix {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    pointer-events: none;
+  }
+  .nominal-wrap input { padding-left: 36px; }
+
+  /* Type toggle */
+  .type-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .type-btn {
+    padding: 10px 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .type-btn:hover { border-color: var(--border-hover); color: var(--text); }
+  .type-btn.masuk.active {
+    background: var(--accent-green-dim);
+    border-color: rgba(34,197,94,0.35);
+    color: var(--accent-green);
+  }
+  .type-btn.keluar.active {
+    background: var(--accent-red-dim);
+    border-color: rgba(248,113,113,0.35);
+    color: var(--accent-red);
+  }
+
+  /* Divider */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+
+  /* Button row */
+  .btn-row { display: flex; gap: 8px; }
+  .btn-reset {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-reset:hover { border-color: var(--border-hover); color: var(--text); background: var(--surface2); }
+
+  .btn-primary {
+    flex: 1;
+    padding: 12px;
+    background: var(--accent-green);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #061a0d;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* Spinner */
+  .spinner {
+    width: 15px; height: 15px;
+    border: 2px solid rgba(6,26,13,0.3);
+    border-top-color: #061a0d;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .month-loader {
+    width: 12px; height: 12px;
+    border: 2px solid rgba(255,255,255,0.25);
+    border-top-color: var(--text);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    visibility: hidden;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Recent */
+  .recent-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  .recent-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .recent-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    transition: background 0.1s;
+    animation: fadeIn 0.3s ease;
+  }
+  .recent-item:last-child { border-bottom: none; }
+  .recent-item:hover { background: var(--surface2); }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .badge {
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+  }
+  .badge-masuk { background: var(--accent-green-dim); color: var(--accent-green); }
+  .badge-keluar { background: var(--accent-red-dim); color: var(--accent-red); }
+  .recent-uraian { flex: 1; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .recent-date { color: var(--muted); font-size: 11px; font-family: 'DM Mono', monospace; flex-shrink: 0; }
+  .recent-nominal { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+  .nominal-masuk { color: var(--accent-green); }
+  .nominal-keluar { color: var(--accent-red); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    padding: 10px 18px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap;
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.success { background: var(--accent-green); color: #061a0d; }
+  .toast.error { background: var(--accent-red); color: #fff; }
+
+  /* Status dot */
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .status-dot.connected { background: var(--accent-green); box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="app-header">
+    <div class="app-logo">💰</div>
+    <div>
+      <div class="app-title">Kas Harian</div>
+      <div class="app-sub">Kal</div>
+    </div>
+  </div>
+
+  <!-- URL Config -->
+  <div class="card">
+    <div class="url-row">
+      <div class="status-dot" id="statusDot"></div>
+      <input type="text" id="scriptUrl" class="url-input"
+        placeholder="Paste Apps Script URL di sini…"
+        oninput="onUrlChange()" />
+      <button class="btn-sm" onclick="saveUrl()">Simpan</button>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="card">
+
+    <div class="grid-top">
+      <div class="field">
+        <div class="field-label">No</div>
+        <input type="number" id="fNo" placeholder="Auto" style="text-align:center; padding-left:8px; padding-right:8px;" />
+      </div>
+      <div class="field">
+        <div class="field-label">Tanggal</div>
+        <input type="date" id="fTanggal" onblur="validateTanggal()" />
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:10px;">
+      <div class="field-label">Jenis Kas</div>
+      <div class="type-toggle">
+        <div class="type-btn masuk active" id="btnMasuk" onclick="setType('masuk')">
+          ↓ Masuk
+        </div>
+        <div class="type-btn keluar" id="btnKeluar" onclick="setType('keluar')">
+          ↑ Keluar
+        </div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:10px;">
+      <div class="field-label">Uraian / Keterangan</div>
+      <textarea id="fUraian" placeholder="Contoh: Jajan di warung rusun, bayar listrik…"></textarea>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <div class="field-label">Kategori</div>
+        <select id="fJenis">
+          <option value="">— Pilih —</option>
+          <option>Biaya Administrasi Bank</option>
+          <option>Groceries</option>
+          <option>Hiburan</option>
+          <option>Keluarga</option>
+          <option>Liburan</option>
+          <option>Makanan dan Minuman</option>
+          <option>Pendapatan</option>
+          <option>Skincare dan Makeup</option>
+          <option>Tabungan</option>
+          <option>Tagihan dan Pulsa</option>
+          <option>Transportasi dan Perjalanan</option>
+          <option>Lain-lain</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="field-label">Nominal (Rp)</div>
+        <div class="nominal-wrap">
+          <span class="nominal-prefix">Rp</span>
+          <input type="number" id="fNominal" placeholder="0" min="0" />
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <div class="btn-row">
+      <button class="btn-reset" onclick="resetForm()">↺ Reset</button>
+      <button class="btn-primary" id="btnSubmit" onclick="submitData()">
+        <div class="spinner" id="spinner"></div>
+        <span id="btnLabel">Simpan ke Sheets</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Recent -->
+  <div class="recent-card" id="recentSection" style="display:none;">
+    <div class="recent-header">Baru ditambahkan</div>
+    <div id="recentList"></div>
+  </div>
+
+  <div class="recent-card" id="monthSection" style="display:none;">
+    <div class="recent-header">Data Bulan Ini</div>
+    <div id="monthSummary"></div>
+    <div id="monthDebug" style="display:flex; align-items:center; padding: 10px 14px; color: var(--muted); font-size: 12px; line-height: 1.4;
+      border-bottom: 1px solid var(--border);">
+      <span id="monthLoader" class="month-loader"></span>
+      <span id="monthDebugText">Memuat...</span>
+    </div>
+    <div id="monthList"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let currentType = 'keluar';
+  let recentItems = [];
+
+  // Init
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('fTanggal').value = today;
+
+  const defaultUrl = 'https://script.google.com/macros/s/AKfycbyU1YyauBT9WxBYH2cIHqBIk_B0XXBSy7B6EfO1a0asAMZH-TG2OiddsCNJm5M3u5-5/exec';
+  const savedUrl = localStorage.getItem('kas_script_url') || defaultUrl;
+  document.getElementById('scriptUrl').value = savedUrl;
+  document.getElementById('statusDot').classList.add('connected');
+  document.getElementById('fTanggal').max = today;
+  setType(currentType);
+  loadMonthlyData();
+
+  function onUrlChange() {
+    const v = document.getElementById('scriptUrl').value.trim();
+    document.getElementById('statusDot').classList.toggle('connected', v.length > 10);
+  }
+
+  function validateTanggal() {
+    const tanggalInput = document.getElementById('fTanggal');
+    if (tanggalInput.value > today) {
+      showToast('Tanggal tidak boleh lebih dari hari ini', 'error');
+      tanggalInput.value = today;
+      return false;
+    }
+    return true;
+  }
+
+  function saveUrl() {
+    const url = document.getElementById('scriptUrl').value.trim();
+    if (url) {
+      localStorage.setItem('kas_script_url', url);
+      showToast('URL tersimpan ✓', 'success');
+      loadMonthlyData();
+    } else {
+      showToast('URL kosong!', 'error');
+    }
+  }
+
+  function setType(t) {
+    currentType = t;
+    document.getElementById('btnMasuk').classList.toggle('active', t === 'masuk');
+    document.getElementById('btnKeluar').classList.toggle('active', t === 'keluar');
+  }
+
+  function resetForm() {
+    document.getElementById('fNo').value = '';
+    document.getElementById('fTanggal').value = today;
+    document.getElementById('fUraian').value = '';
+    document.getElementById('fJenis').value = '';
+    document.getElementById('fNominal').value = '';
+    setType('keluar');
+  }
+
+  function formatRp(n) {
+    return 'Rp\u00A0' + Number(n).toLocaleString('id-ID');
+  }
+
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type + ' show';
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  function addRecent(data) {
+    recentItems.unshift(data);
+    if (recentItems.length > 5) recentItems.pop();
+    const sec = document.getElementById('recentSection');
+    sec.style.display = 'block';
+    document.getElementById('recentList').innerHTML = recentItems.map(d => `
+      <div class="recent-item">
+        <span class="badge ${d.type === 'masuk' ? 'badge-masuk' : 'badge-keluar'}">${d.type === 'masuk' ? '↓ MASUK' : '↑ KELUAR'}</span>
+        <span class="recent-uraian">${d.uraian}</span>
+        <span class="recent-date">${d.tanggal}</span>
+        <span class="recent-nominal ${d.type === 'masuk' ? 'nominal-masuk' : 'nominal-keluar'}">${formatRp(d.nominal)}</span>
+      </div>
+    `).join('');
+  }
+
+  function parseIsoDate(value) {
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  function isCurrentMonth(value) {
+    const d = parseIsoDate(value);
+    if (!d) return false;
+    const now = new Date();
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  }
+
+  function renderMonthlyData(items) {
+    const section = document.getElementById('monthSection');
+    const list = document.getElementById('monthList');
+    const summary = document.getElementById('monthSummary');
+
+    section.style.display = 'block';
+    if (!items.length) {
+      summary.innerHTML = '';
+      list.innerHTML = '<div class="recent-item" style="justify-content:center;color:var(--muted);">Tidak ada data bulan ini.</div>';
+      setMonthLoading(false, 'Tidak ada data bulan ini');
+      return;
+    }
+
+    const masukTotal = items.reduce((sum, item) => sum + Number(item.masuk || (item.type === 'masuk' ? item.nominal : 0) || 0), 0);
+    const keluarTotal = items.reduce((sum, item) => sum + Number(item.keluar || (item.type === 'keluar' ? item.nominal : 0) || 0), 0);
+
+    summary.innerHTML = `
+      <div class="recent-item" style="justify-content:space-between;gap:10px;font-weight:600;">
+        <span>${items.length} catatan bulan ini</span>
+        <span>${formatRp(masukTotal)} / ${formatRp(keluarTotal)}</span>
+      </div>
+    `;
+
+    list.innerHTML = items.map(row => `
+      <div class="recent-item">
+        <span class="recent-date">${row.tanggal || '-'}</span>
+        <span class="badge ${row.type === 'masuk' ? 'badge-masuk' : 'badge-keluar'}">
+          ${row.jenis || (row.type === 'masuk' ? '↓ MASUK' : '↑ KELUAR')}
+        </span>
+        <span class="recent-uraian">${row.uraian || '-'}</span>
+        <span class="recent-nominal ${row.type === 'masuk' ? 'nominal-masuk' : 'nominal-keluar'}">
+          ${formatRp(row.nominal || row.masuk || row.keluar || 0)}
+        </span>
+      </div>
+    `).join('');
+  }
+
+  function setMonthLoading(isLoading, message = 'Memuat...') {
+    const section = document.getElementById('monthSection');
+    const loader = document.getElementById('monthLoader');
+    const debugText = document.getElementById('monthDebugText');
+    section.style.display = 'block';
+    loader.style.visibility = isLoading ? 'visible' : 'hidden';
+    debugText.textContent = message;
+  }
+
+  async function loadMonthlyData() {
+    const scriptUrl = document.getElementById('scriptUrl').value.trim();
+    if (!scriptUrl) return;
+
+    setMonthLoading(true, 'Memuat data bulan ini...');
+    try {
+      const res = await fetch(scriptUrl, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const json = await res.json();
+      const data = Array.isArray(json.data) ? json.data : [];
+      setMonthLoading(false, `Response status=${json.status} rows=${data.length}`);
+      if (json.status !== 'ok') {
+        throw new Error(json.message || 'Data bulan ini tidak tersedia');
+      }
+
+      const monthly = data.map(item => ({
+        uraian: item.uraian || item.keterangan || item.Uraian || '',
+        tanggal: item.tanggal || item.date || item.Tanggal || '',
+        jenis: item.jenis || item.Jenis || item.kategori || item.Kategori || item.category || item.Category || '',
+        type: item.masuk && Number(item.masuk) > 0 ? 'masuk' : 'keluar',
+        nominal: item.masuk || item.keluar || item.total || item.nominal || 0,
+        masuk: item.masuk || 0,
+        keluar: item.keluar || 0,
+      }));
+
+      renderMonthlyData(monthly);
+    } catch (e) {
+      console.warn('Gagal memuat data bulan ini', e);
+      const section = document.getElementById('monthSection');
+      const list = document.getElementById('monthList');
+      const summary = document.getElementById('monthSummary');
+      section.style.display = 'block';
+      summary.innerHTML = '';
+      setMonthLoading(false, `Error: ${e.message}`);
+      list.innerHTML = '<div class="recent-item" style="justify-content:center;color:var(--muted);">Tidak dapat memuat data bulan ini.</div>';
+    }
+  }
+
+  async function submitData() {
+    const scriptUrl = document.getElementById('scriptUrl').value.trim();
+    const no = document.getElementById('fNo').value.trim();
+    const tanggal = document.getElementById('fTanggal').value;
+    const uraian = document.getElementById('fUraian').value.trim();
+    const jenis = document.getElementById('fJenis').value;
+    const nominal = document.getElementById('fNominal').value;
+
+    if (!tanggal || !uraian || !jenis || !nominal) {
+      showToast('Lengkapi semua field dulu!', 'error'); return;
+    }
+    if (!validateTanggal()) {
+      return;
+    }
+    if (!scriptUrl) {
+      showToast('Isi URL Apps Script dulu', 'error'); return;
+    }
+
+    const btn = document.getElementById('btnSubmit');
+    const lbl = document.getElementById('btnLabel');
+    const spin = document.getElementById('spinner');
+    btn.disabled = true;
+    lbl.textContent = 'Menyimpan…';
+    spin.style.display = 'block';
+
+    const payload = {
+      no: no || 'auto', tanggal, uraian, jenis,
+      type: currentType,
+      masuk: currentType === 'masuk' ? nominal : '',
+      keluar: currentType === 'keluar' ? nominal : '',
+      nominal
+    };
+
+    try {
+      const res = await fetch(scriptUrl, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text}`);
+      }
+      const json = await res.json();
+      if (json.status === 'ok') {
+        showToast('Tersimpan ke Google Sheets ✓', 'success');
+        addRecent({ tanggal, uraian, type: currentType, nominal });
+        resetForm();
+        loadMonthlyData();
+      } else {
+        showToast('Gagal: ' + (json.message || 'Error'), 'error');
+      }
+    } catch(e) {
+      console.warn('Submit failed', e);
+      showToast('Koneksi gagal — cek URL & CORS', 'error');
+    }
+
+    btn.disabled = false;
+    lbl.textContent = 'Simpan ke Sheets';
+    spin.style.display = 'none';
+  }
+
+// Load otomatis saat halaman dibuka
+window.addEventListener('load', () => {
+  setTimeout(loadMonthlyData, 500);
+});
+</script>
+</body>
+</html>
