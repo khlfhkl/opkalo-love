@@ -71,6 +71,10 @@
   }
   .card:hover { border-color: var(--border-hover); }
 
+  .url-config {
+    display: none;
+  }
+
   /* URL bar */
   .url-row {
     display: flex;
@@ -341,7 +345,7 @@
   </div>
 
   <!-- URL Config -->
-  <div class="card">
+  <div class="card url-config">
     <div class="url-row">
       <div class="status-dot" id="statusDot"></div>
       <input type="text" id="scriptUrl" class="url-input"
@@ -447,7 +451,14 @@
   let recentItems = [];
 
   // Init
-  const today = new Date().toISOString().split('T')[0];
+  function getTodayInGMT7() {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    const gmt7 = new Date(utc + 7 * 60 * 60 * 1000);
+    return gmt7.toISOString().split('T')[0];
+  }
+
+  const today = getTodayInGMT7();
   document.getElementById('fTanggal').value = today;
 
   const defaultUrl = 'https://script.google.com/macros/s/AKfycbyU1YyauBT9WxBYH2cIHqBIk_B0XXBSy7B6EfO1a0asAMZH-TG2OiddsCNJm5M3u5-5/exec';
