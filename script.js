@@ -130,7 +130,7 @@
     summary.innerHTML = `
       <div class="recent-item" style="justify-content:space-between;gap:10px;font-weight:600;">
         <span>${items.length} catatan bulan ini</span>
-        <span>${formatRp(masukTotal)} / ${formatRp(keluarTotal)}</span>
+        <span class="summary-values"><span class="summary-value masuk">${formatRp(masukTotal)}</span> / <span class="summary-value keluar">${formatRp(keluarTotal)}</span></span>
       </div>
     `;
 

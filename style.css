@@ -190,6 +190,18 @@
     color: var(--accent-red);
   }
 
+  .summary-values {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .summary-value.masuk {
+    color: var(--accent-green);
+  }
+  .summary-value.keluar {
+    color: var(--accent-red);
+  }
+  
   /* Divider */
   .divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
 
