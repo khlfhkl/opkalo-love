@@ -340,7 +340,7 @@
     <div class="app-logo">💰</div>
     <div>
       <div class="app-title">#OperationKalo</div>
-      <div class="app-sub">Kal</div>
+      <div class="app-sub">Loveia</div>
     </div>
   </div>
 
@@ -449,6 +449,19 @@
 <script>
   let currentType = 'keluar';
   let recentItems = [];
+  let lastRequestTimestamp = 0;
+  const REQUEST_INTERVAL_MS = 10000; // 1 request per 10 detik
+
+  function canSendRequest() {
+    const now = Date.now();
+    if (now - lastRequestTimestamp < REQUEST_INTERVAL_MS) {
+      const remainingSeconds = Math.ceil((REQUEST_INTERVAL_MS - (now - lastRequestTimestamp)) / 1000);
+      showToast(`Tunggu ${remainingSeconds} detik sebelum mengirim lagi`, 'error');
+      return false;
+    }
+    lastRequestTimestamp = now;
+    return true;
+  }
 
   // Init
   function getTodayInGMT7() {
@@ -461,7 +474,7 @@
   const today = getTodayInGMT7();
   document.getElementById('fTanggal').value = today;
 
-  const defaultUrl = 'https://script.google.com/macros/s/AKfycbyU1YyauBT9WxBYH2cIHqBIk_B0XXBSy7B6EfO1a0asAMZH-TG2OiddsCNJm5M3u5-5/exec';
+  const defaultUrl = 'https://script.google.com/macros/s/AKfycbxJrGMd9oJe8ZX2hiZc4UQ3CN1Z8rT0RYM3Ek5l9Ld326BeuhfG-99PKY9Dw8AGXQWM/exec';
   const savedUrl = localStorage.getItem('kas_script_url') || defaultUrl;
   document.getElementById('scriptUrl').value = savedUrl;
   document.getElementById('statusDot').classList.add('connected');
@@ -597,6 +610,10 @@
   async function loadMonthlyData() {
     const scriptUrl = document.getElementById('scriptUrl').value.trim();
     if (!scriptUrl) return;
+    if (!canSendRequest()) {
+      setMonthLoading(false, 'Rate limit aktif, tunggu beberapa detik');
+      return;
+    }
 
     setMonthLoading(true, 'Memuat data bulan ini...');
     try {
@@ -640,6 +657,8 @@
   }
 
   async function submitData() {
+    if (!canSendRequest()) return;
+
     const scriptUrl = document.getElementById('scriptUrl').value.trim();
     const no = document.getElementById('fNo').value.trim();
     const tanggal = document.getElementById('fTanggal').value;
