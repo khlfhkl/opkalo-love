@@ -16,10 +16,12 @@
 
   // Init tes
   function getTodayInGMT7() {
-    const now = new Date();
-    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-    const gmt7 = new Date(utc + 7 * 60 * 60 * 1000);
-    return gmt7.toISOString().split('T')[0];
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Jakarta',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
   }
 
   const today = getTodayInGMT7();
